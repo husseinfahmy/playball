@@ -12,7 +12,7 @@
     		<div style="padding-left:35%; width:65%; padding-top:15%" class="col-md-6 col-md-offset-3">
         		<h2>Find Nearby Courts</h2>
 
-        		<form >
+        		<form action="{{ url_for('search') }}" method=post ng-submit="submit()">
             		<div class="form-group">
                     	<input type="text" name="location" class="form-control" placeholder="Enter Your Location" />
                     </div>

@@ -1,15 +1,37 @@
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from court import Court
 import os
 import config
 import requests
 import json
 
-app = Flask(__name__)
 
+#Configuration
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
+
+#Token response
 YELP_ACCESS_TOKEN = "aqKeXPatJnHAFTXPoyuhkrIbgDvt5KfFrkwitxXGVGrtexzENT57Pk2EPmGoebTeQT7-iMC6Ul-Q568toAA4oe8LUNlL571AjfEHfNktKUKzhYD--mizotdiG4bdV3Yx"
 EMPTY_RESPONSE = json.dumps('')
 
-app = Flask(__name__)
+#DB models
+class Court(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    location = db.Column(db.String(120), unique=True)
+    count = db.Column(db.Integer)
+
+    def __init__(name, location):
+        self.name = name
+        self.location = location
+
+    def __repr__(self):
+        return '<Court %r>' % self.name
+
+db.drop_all()                                                                                                                               
+db.create_all()   
 
 def get_auth_dict(access_token):
     return {'Authorization' : "Bearer " + access_token}
@@ -29,7 +51,7 @@ def get_yelp_access_token():
     
     return session[YELP_ACCESS_TOKEN]
 
-def getData(response);
+def getData(response):
     result = response.json()
     allcourts = result["businesses"]
     if not allcourts:
@@ -39,25 +61,26 @@ def getData(response);
     for a in allcourts:
         name  = a["name"]
         image_url = a["image_url"]
-        address1 = a["address1"]
+        location = a["location"]
         coordinates = a["coordinates"]
 
-        court = Court(name, image_url, address1, coordinates)
+        court = Court(name, image_url, location, coordinates)
         courts.append(court)
     return courts
 
-@app.route("/search", methods=['POST'])
+@app.route("/search", methods=['POST', 'GET'])
 def search():
-    term = request.args.get("term", None)
-    location = request.args.get("location", None)
+    term = request.form['term']
+    location = request.form['location']
 
     response = requests.get('https://api.yelp.com/v3/businesses/search',
-            params=get_search_params(term, location),
-            headers=get_auth_dict(get_yelp_access_token()))
+    params=get_search_params(term, location),
+    headers=get_auth_dict(get_yelp_access_token()))
+
     if response.status_code == 200:
         print "Got 200 for business search"
         courts = getData(response)
-        return redirect(url_for('results'), courts=courts)
+        return redirect(url_for('results', courts=courts))
     else:
         print "Received non-200 response({}) for business search, returning empty response".format(response.status_code)
         return EMPTY_RESPONSE
@@ -65,9 +88,13 @@ def search():
 def get_search_params(term, location):
     return {'term': term, 'location' : location}
 
+@app.route("/results")
+def results():
+    return render_template('results.html')
+
 @app.route('/')
 def homepage():
-	return render_template('index.html', term=term, location=location)
+	return render_template('index.html')
 
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
