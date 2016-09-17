@@ -59,25 +59,26 @@ def getData(response):
     for a in allcourts:
         name  = a["name"]
         image_url = a["image_url"]
-        address1 = a["address1"]
+        location = a["location"]
         coordinates = a["coordinates"]
 
-        court = Court(name, image_url, address1, coordinates)
+        court = Court(name, image_url, location, coordinates)
         courts.append(court)
     return courts
 
-@app.route("/search", methods=['POST'])
+@app.route("/search", methods=['POST', 'GET'])
 def search():
-    term = request.args.get("term", None)
-    location = request.args.get("location", None)
+    term = request.form['term']
+    location = request.form['location']
 
     response = requests.get('https://api.yelp.com/v3/businesses/search',
-            params=get_search_params(term, location),
-            headers=get_auth_dict(get_yelp_access_token()))
+    params=get_search_params(term, location),
+    headers=get_auth_dict(get_yelp_access_token()))
+
     if response.status_code == 200:
         print "Got 200 for business search"
         courts = getData(response)
-        return redirect(url_for('results'), courts=courts)
+        return redirect(url_for('results', courts=courts))
     else:
         print "Received non-200 response({}) for business search, returning empty response".format(response.status_code)
         return EMPTY_RESPONSE
@@ -85,9 +86,13 @@ def search():
 def get_search_params(term, location):
     return {'term': term, 'location' : location}
 
+@app.route("/results")
+def results():
+    return render_template('results.html')
+
 @app.route('/')
 def homepage():
-	return render_template('index.html', term=term, location=location)
+	return render_template('index.html')
 
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
