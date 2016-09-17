@@ -1,8 +1,8 @@
 
 class Court(object):
 
-	def __init__(self, name, image, address, coordinates):
+	def __init__(self, name, image, location, coordinates):
 		self.name = name
 		self.image = image
-		self.address = address
+		self.location = location
 		self.coordinates = coordinates
