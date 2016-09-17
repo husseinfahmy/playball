@@ -1,16 +1,37 @@
 from flask import Flask, render_template, session, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 from court import Court
 import os
 import config
 import requests
 import json
 
-app = Flask(__name__)
 
+#Configuration
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
+
+#Token response
 YELP_ACCESS_TOKEN = "aqKeXPatJnHAFTXPoyuhkrIbgDvt5KfFrkwitxXGVGrtexzENT57Pk2EPmGoebTeQT7-iMC6Ul-Q568toAA4oe8LUNlL571AjfEHfNktKUKzhYD--mizotdiG4bdV3Yx"
 EMPTY_RESPONSE = json.dumps('')
 
-app = Flask(__name__)
+#DB models
+class Court(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    location = db.Column(db.String(120), unique=True)
+    count = db.Column(db.Integer)
+
+    def __init__(name, location):
+        self.name = name
+        self.location = location
+
+    def __repr__(self):
+        return '<Court %r>' % self.name
+
+db.drop_all()                                                                                                                               
+db.create_all()   
 
 def get_auth_dict(access_token):
     return {'Authorization' : "Bearer " + access_token}
