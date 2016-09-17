@@ -17,18 +17,18 @@ YELP_ACCESS_TOKEN = "aqKeXPatJnHAFTXPoyuhkrIbgDvt5KfFrkwitxXGVGrtexzENT57Pk2EPmG
 EMPTY_RESPONSE = json.dumps('')
 
 #DB models
-class Court(db.Model):
+class CourtMan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True)
     location = db.Column(db.String(120), unique=True)
     count = db.Column(db.Integer)
 
-    def __init__(name, location):
+    def __init__(self, name, location):
         self.name = name
         self.location = location
 
     def __repr__(self):
-        return '<Court %r>' % self.name
+        return '<Court %r>' % self.name 
 
 db.drop_all()                                                                                                                               
 db.create_all()   
@@ -50,6 +50,17 @@ def get_yelp_access_token():
             raise RuntimeError("Unable to get token, received status code " + str(response.response))
     
     return session[YELP_ACCESS_TOKEN]
+
+@app.route("/db", methods=['POST', 'GET'])
+def dbapp():
+	court1 = CourtMan('court1', 'court2')
+	try:
+		db.session.add(court1)
+		db.session.commit()
+		print (CourtMan.query.all())
+	except: 
+		print "did not add"
+	return "bleh"
 
 def getData(response):
     result = response.json()
@@ -99,4 +110,4 @@ def homepage():
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
     app.secret_key = os.urandom(24)
-    app.run(host='0.0.0.0', port=int(port))
+    app.run(host='0.0.0.0', port=int(port), debug=True)
