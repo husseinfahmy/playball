@@ -8,15 +8,57 @@
 </head>
 <body>
   <div id="wrapper">
-    {% for court in courts %}
+
+  <div id="content">
+      <div class="w3-card-8 w3-dark-grey" style="width:50%; float: left;">
+        <div class="w3-container w3-center" style="background-image: url({{ courts[0].image }});background-size:100%;">
+          <h3>{{ courts[0].name }}</h3>
+          <h1>{{ courts[0].count }}</h1>
+          <div class="w3-section">
+            <button id="decrement" class="w3-btn w3-red">Sign Out</button>
+            <button id="increment" class="w3-btn w3-green">Sign In</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+      
+      $('#increment').on('click', function(e){
+        //window.alert("increment");
+         $.ajax({
+            type: 'POST',
+            url: '/increment',
+            success: function(data){
+              alert(data);
+            }
+          });
+      });
+
+      $('#decrement').on('click', function(e){
+        //window.alert("decrement");
+         $.ajax({
+            type: 'POST',
+            url: '/decrement',
+            success: function(data){
+              alert(data);
+            }
+          });
+      });
+  </script>
+
+
+
+    {% for i in range(1,10) %}
   	<div id="content">
 		  <div class="w3-card-8 w3-dark-grey" style="width:50%; float: left;">
-        <div class="w3-container w3-center" style="background-image: url({{ court.image }});background-size:100%;">
-          <h3>{{ court.name }}</h3>
-          <h1>{{ court.count }}</h1>
+        <div class="w3-container w3-center" style="background-image: url({{ courts[i].image }});background-size:100%;">
+          <h3>{{ courts[i].name }}</h3>
+          <h1>0</h1>
           <div class="w3-section">
-            <button id="{{court.name}}" class="w3-btn w3-red">Sign Out</button>
-            <button id="{{court.name}}" class="w3-btn w3-green">Sign In</button>
+            <button id="{{courts[i].name}}" class="w3-btn w3-red">Sign Out</button>
+            <button id="{{courts[i].name}}" class="w3-btn w3-green">Sign In</button>
           </div>
         </div>
       </div>
