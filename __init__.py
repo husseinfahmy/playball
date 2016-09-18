@@ -91,8 +91,6 @@ def loadSearch(allcourts):
 	for court in allcourts:
 		courtName = court["name"]
 		courtLocation = court["location"]["city"]
-		print courtName
-		print courtLocation
 
 		if db.session.query(CourtMan).filter(CourtMan.name==courtName).count() == 0:
 			currentCourt = CourtMan(courtName, 0)
@@ -147,4 +145,4 @@ def homepage():
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
     app.secret_key = os.urandom(24)
-    app.run(host='0.0.0.0', port=int(port), debug=True)
+    app.run()
