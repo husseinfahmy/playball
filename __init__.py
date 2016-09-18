@@ -63,12 +63,14 @@ def dbapp():
 	return "bleh"
 
 def getData(response):
-    result = response.json()
-    allcourts = result["businesses"]
-    if not allcourts:
-        raise ValueError("Search is invalid.") 
-    courts = []
-
+    try:
+        result = response.json()
+        allcourts = result["businesses"]
+        if not allcourts:
+            raise ValueError("Search is invalid.") 
+        courts = []
+    except ValueError as e:
+        print e
     for a in allcourts:
         name  = a["name"]
         image_url = a["image_url"]
@@ -91,7 +93,7 @@ def search():
     if response.status_code == 200:
         print "Got 200 for business search"
         courts = getData(response)
-        return redirect(url_for('results', courts=courts))
+        return results(courts)
     else:
         print "Received non-200 response({}) for business search, returning empty response".format(response.status_code)
         return EMPTY_RESPONSE
@@ -100,8 +102,8 @@ def get_search_params(term, location):
     return {'term': term, 'location' : location}
 
 @app.route("/results")
-def results():
-    return render_template('results.html')
+def results(courts):
+    return render_template('results.html', courts=courts)
 
 @app.route('/')
 def homepage():
