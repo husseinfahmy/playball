@@ -20,15 +20,16 @@ EMPTY_RESPONSE = json.dumps('')
 class CourtMan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True)
-    location = db.Column(db.String(120), unique=True)
     count = db.Column(db.Integer)
 
-    def __init__(self, name, location):
+    def __init__(self, name, count):
         self.name = name
-        self.location = location
+        if count == None:
+        	self.count = 0
+        self.count = count
 
     def __repr__(self):
-        return '<Court %r>' % self.name 
+        return '<Court %r, count %r>' % (self.name, self.count)
 
 db.drop_all()                                                                                                                               
 db.create_all()   
@@ -77,9 +78,36 @@ def getData(response):
         location = a["location"]
         coordinates = a["coordinates"]
 
-        court = Court(name, image_url, location, coordinates)
+        mycourt = db.session.query(CourtMan).filter(CourtMan.name==name).first()
+        courtCount = 0
+        if not mycourt == None:
+        	courtCount = mycourt.count
+
+        court = Court(name, image_url, location, coordinates, courtCount)
         courts.append(court)
+    loadSearch(allcourts)
     return courts
+
+def loadSearch(allcourts):
+	for court in allcourts:
+		courtName = court["name"]
+		courtLocation = court["location"]["city"]
+		print courtName
+		print courtLocation
+
+		if db.session.query(CourtMan).filter(CourtMan.name==courtName).count() == 0:
+			currentCourt = CourtMan(courtName, 0)
+			db.session.add(currentCourt)
+		else:
+			mycourt = db.session.query(CourtMan).filter(CourtMan.name==courtName).first()
+			mycourt.count = mycourt.count + 1
+	db.session.commit()
+	print (CourtMan.query.all())
+
+
+@app.route("/increment", methods=['POST'])
+def increment():
+	return EMPTY_RESPONSE
 
 @app.route("/search", methods=['POST', 'GET'])
 def search():
