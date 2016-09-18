@@ -104,12 +104,16 @@ def loadSearch(allcourts):
 def increment():
 	mycourt = db.session.query(CourtMan).first()
 	mycourt.count = mycourt.count + 1
+	db.session.commit()
+	print (CourtMan.query.all())
 	return EMPTY_RESPONSE
 
 @app.route("/decrement", methods=['POST'])
 def decrement():
 	mycourt = db.session.query(CourtMan).first()
 	mycourt.count = mycourt.count - 1
+	db.session.commit()
+	print (CourtMan.query.all())
 	return EMPTY_RESPONSE
 
 @app.route("/search", methods=['POST', 'GET'])
