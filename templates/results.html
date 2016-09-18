@@ -13,9 +13,7 @@
 		  <div class="w3-card-8 w3-dark-grey" style="width:50%; float: left;">
         <div class="w3-container w3-center" style="background-image: url({{ court.image }});background-size:100%;">
           <h3>{{ court.name }}</h3>
-          <img src="{{court.image}}" alt="Avatar" style="width:30%">
-          <h5></h5>
-
+          <h1>{{ court.count }}</h1>
           <div class="w3-section">
             <button id="{{court.name}}" class="w3-btn w3-red">Sign Out</button>
             <button id="{{court.name}}" class="w3-btn w3-green">Sign In</button>
