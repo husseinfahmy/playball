@@ -6,7 +6,6 @@ import config
 import requests
 import json
 
-
 #Configuration
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
@@ -34,6 +33,7 @@ class CourtMan(db.Model):
 db.drop_all()                                                                                                                               
 db.create_all()   
 
+allthecourts = []
 def get_auth_dict(access_token):
     return {'Authorization' : "Bearer " + access_token}
 
@@ -98,15 +98,22 @@ def loadSearch(allcourts):
 		if db.session.query(CourtMan).filter(CourtMan.name==courtName).count() == 0:
 			currentCourt = CourtMan(courtName, 0)
 			db.session.add(currentCourt)
-		else:
-			mycourt = db.session.query(CourtMan).filter(CourtMan.name==courtName).first()
-			mycourt.count = mycourt.count + 1
 	db.session.commit()
 	print (CourtMan.query.all())
+
+def reloadCourt(courtman):
 
 
 @app.route("/increment", methods=['POST'])
 def increment():
+	mycourt = db.session.query(CourtMan).one()
+	mycourt.count = mycourt.count + 1
+	return EMPTY_RESPONSE
+
+@app.route("/decrement", methods=['POST'])
+def decrement():
+	mycourt = db.session.query(CourtMan).one()
+	mycourt.count = mycourt.count - 1
 	return EMPTY_RESPONSE
 
 @app.route("/search", methods=['POST', 'GET'])
@@ -131,6 +138,8 @@ def get_search_params(term, location):
 
 @app.route("/results")
 def results(courts):
+	global allthecourts
+	allthecourts = courts
     return render_template('results.html', courts=courts)
 
 @app.route('/')
