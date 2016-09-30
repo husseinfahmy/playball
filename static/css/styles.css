@@ -1,7 +1,11 @@
-  #homepage_body{
-  	background-image: url("../images/background.jpeg");
-  	background-size: 100% 190%;
+  html { 
+    background: url(../images/background.jpeg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
   }
+
 
   .center
 	{
